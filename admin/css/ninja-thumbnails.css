@@ -13,8 +13,8 @@
 #adminmenu .toplevel_page_ninja-thumb div.wp-menu-image {
 	background-position: 0 0;
 }
-li.toplevel_page_ninja-thumb div.wp-menu-image img {
-	display: none;
+#adminmenu .toplevel_page_ninja-thumb div.wp-menu-image img {
+	padding: 0;
 }
 
 @media only screen and (-webkit-min-device-pixel-ratio: 1.5) {

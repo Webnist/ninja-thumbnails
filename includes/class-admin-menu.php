@@ -84,13 +84,14 @@ class NinjaThumbAdmin {
 	}
 
 	public function admin_enqueue_scripts( $hook ) {
-		if ( $hook != 'toplevel_page_ninja-thumb')
-			return;
-
-		wp_enqueue_script( 'admin-ninja-thumbnails-script', $this->plugin_dir_url . '/admin/js/ninja-thumbnails.js', array('jquery-ui-datepicker') );
 
 		wp_enqueue_style( 'admin-ninja-thumbnails-style', $this->plugin_dir_url . '/admin/css/ninja-thumbnails.css' );
-		wp_enqueue_style( 'admin-ninja-thumbnails-jquery-ui-style', $this->plugin_dir_url . '/admin/css/ui-lightness/jquery-ui-1.9.2.custom.min.css' );
+
+		if ( $hook == 'toplevel_page_ninja-thumb') {
+			wp_enqueue_script( 'admin-ninja-thumbnails-script', $this->plugin_dir_url . '/admin/js/ninja-thumbnails.js', array('jquery-ui-datepicker') );
+
+			wp_enqueue_style( 'admin-ninja-thumbnails-jquery-ui-style', $this->plugin_dir_url . '/admin/css/ui-lightness/jquery-ui-1.9.2.custom.min.css' );
+		}
 	}
 
 }
