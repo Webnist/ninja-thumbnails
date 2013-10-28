@@ -21,7 +21,7 @@ class NinjaThumbAdmin {
 	}
 
 	public function admin_menu() {
-		add_menu_page( __( 'Ninja Thumbnails', NinjaThumb::TEXT_DOMAIN ), __( 'Ninja Thumbnails', NinjaThumb::TEXT_DOMAIN ), 'edit_users', self::OPTION_PAGE, array( &$this, 'add_admin_edit_page' ), $this->plugin_dir_url . '/admin/images/menu-icon.gif' );
+		add_menu_page( __( 'Ninja Thumbnails', NinjaThumb::TEXT_DOMAIN ), __( 'Ninja Thumbnails', NinjaThumb::TEXT_DOMAIN ), 'edit_users', self::OPTION_PAGE, array( &$this, 'add_admin_edit_page' ), $this->plugin_dir_url . '/admin/images/menu.png' );
 	}
 
 	public function add_admin_edit_page() {

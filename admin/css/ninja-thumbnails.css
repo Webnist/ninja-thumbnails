@@ -2,3 +2,29 @@
 .disabled {
 	background: #F9F9F9;
 }
+
+#icon-ninja-thumb {
+	background-image: url(../images/icons32.png);
+}
+
+#adminmenu .toplevel_page_ninja-thumb div.wp-menu-image {
+	background: url(../images/menu.png) 0 0;
+}
+#adminmenu .toplevel_page_ninja-thumb div.wp-menu-image {
+	background-position: 0 0;
+}
+li.toplevel_page_ninja-thumb div.wp-menu-image img {
+	display: none;
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5) {
+	#icon-ninja-thumb {
+		background-image: url(../images/icons32-2x.png);
+		background-size: 32px 32px;
+	}
+
+	#adminmenu .toplevel_page_ninja-thumb div.wp-menu-image {
+		background-image: url(../images/menu-2x.png);
+		background-size: 28px 56px;
+	}
+}
