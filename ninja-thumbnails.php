@@ -2,11 +2,14 @@
 /*
 Plugin Name: Ninja Thumbnails
 Plugin URI: http://plugins.webnist.net/
-Description:
+Description: When access to thumbnails that change had not created thumbnail images to regenerate.
 Version: 0.7.1.0
 Author: Webnist
 Author URI: http://webni.st
-License: GPLv2 or later
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: ninja-thumbnails
+Domain Path: /languages/
 */
 
 if ( !class_exists('NinjaThumbAdmin') )

@@ -43,7 +43,7 @@ class NinjaThumbAdmin {
 
 	public function add_general_custom_fields() {
 		global $add_settings_field;
-		add_settings_field( 'ninja_onmitsu', __( 'Onmitsu execution.', NinjaThumb::TEXT_DOMAIN ), array( &$this, 'ninja_check_box' ), self::OPTION_PAGE, 'default', array( 'name' => 'ninja_onmitsu', 'value' => $this->ninja_onmitsu, 'note' => 'Enabling' ) );
+		add_settings_field( 'ninja_onmitsu', __( 'Onmitsu execution.', NinjaThumb::TEXT_DOMAIN ), array( &$this, 'ninja_check_box' ), self::OPTION_PAGE, 'default', array( 'name' => 'ninja_onmitsu', 'value' => $this->ninja_onmitsu, 'note' => __( 'Enabling', NinjaThumb::TEXT_DOMAIN ) ) );
 		add_settings_field( 'ninja_execution_date', __( 'Execution Date', NinjaThumb::TEXT_DOMAIN ), array( &$this, 'ninja_text_field' ), self::OPTION_PAGE, 'default', array( 'name' => 'ninja_execution_date', 'value' => $this->ninja_execution_date ) );
 	}
 
