@@ -3,7 +3,7 @@
 Plugin Name: Ninja Thumbnails
 Plugin URI: http://plugins.webnist.net/
 Description: When access to thumbnails that change had not created thumbnail images to regenerate.
-Version: 0.7.1.0
+Version: 0.7.2.0
 Author: Webnist
 Author URI: http://webni.st
 License: GNU General Public License v2 or later
@@ -33,8 +33,12 @@ class NinjaThumb {
 		register_activation_hook( __FILE__, array( &$this, 'add_options' ) );
 
 		if ( get_option( 'ninja_onmitsu' ) )
-			add_action( 'begin_fetch_post_thumbnail_html', array( &$this, 'ninja_onmitsu' ), 10, 2 );
+			add_action( 'begin_fetch_post_thumbnail_html', array( &$this, 'ninja_onmitsu' ), 10, 3 );
 
+		if ( is_admin() ) {
+			add_filter( 'manage_posts_columns', array( &$this, 'manage_posts_columns' ) );
+			add_action( 'admin_print_styles-edit.php', array( &$this, 'add_menu_order_column_styles' ) );
+		}
 	}
 
 	static public function plugin_basename() {
@@ -57,6 +61,43 @@ class NinjaThumb {
 
 		if ( !get_option( 'ninja_onmitsu' ) )
 			update_option( 'ninja_onmitsu', false );
+
+		if ( !get_option( 'ninja_size' ) )
+			update_option( 'ninja_size', false );
+	}
+
+	// カラムを追加
+	public function manage_posts_columns( $posts_columns ) {
+		$new_columns = array();
+		foreach ( $posts_columns as $column_name => $column_display_name ) {
+			if ( $column_name == 'title' ) {
+				$new_columns['thumbnail'] = __('Thumbnail');
+				add_action( 'manage_posts_custom_column', array( &$this, 'manage_posts_custom_column' ), 10, 2 );
+			}
+			$new_columns[$column_name] = $column_display_name;
+		}
+		return $new_columns;
+	}
+
+	// 追加したカラムの中身
+	public function manage_posts_custom_column($column_name, $post_id) {
+
+		// アイキャッチ
+		if ( $column_name == 'thumbnail') {
+			$thum = ( get_the_post_thumbnail( $post_id, array(50,50), 'thumbnail' ) ) ? get_the_post_thumbnail( $post_id, array(50,50), 'thumbnail' ) : __('None') ;
+			echo $thum;
+		}
+	}
+
+	// 追加したカラムのスタイルシート
+	public function add_menu_order_column_styles() {
+		if ( 'post' == get_post_type() ) { ?>
+			<style type="text/css" charset="utf-8">
+				.fixed .column-thumbnail {
+					width: 7%;
+				}
+			</style>
+		<?php }
 	}
 
 	public function get_ninja_thumbnails_modified() {
@@ -75,7 +116,10 @@ class NinjaThumb {
 		return $value;
 	}
 
-	function ninja_onmitsu( $post_id, $post_thumbnail_id  ) {
+	function ninja_onmitsu( $post_id, $post_thumbnail_id, $size ) {
+		if ( is_admin() )
+			return;
+
 		$execution_date = strtotime( get_option( 'ninja_execution_date' ) );
 		$time           = date_i18n( 'H:i:s', $execution_date );
 		if ( $time == '00:00:00' ) {
@@ -88,7 +132,7 @@ class NinjaThumb {
 		$thumb_modified_date = date_i18n( 'U', strtotime( $thumb->post_modified ) );
 		$thumb_path          = get_attached_file( $post_thumbnail_id );
 
-		if ( $execution_date < $thumb_modified_date )
+		if ( $execution_date < $thumb_modified_date || !file_exists( $thumb_path ) )
 			return;
 
 		global $_wp_additional_image_sizes;
@@ -110,15 +154,21 @@ class NinjaThumb {
 		$mime_type      = get_post_mime_type( $post_thumbnail_id );
 		$thumb_data     = wp_get_attachment_metadata( $post_thumbnail_id );
 		$dir            = opendir( $thumb_dir );
-		while ( false !== ( $file = readdir( $dir ) ) ) {
-			if ( !is_dir( $file ) &&  preg_match( '/' . $thumb_name . '\-/', $file ) ) {
-				unlink( $thumb_dir . '/' . $file );
+		if ( $size_list = get_option( 'ninja_size' ) ) {
+			foreach ( $size_list as $size ) {
+				$sizes[] = $thumb_data['sizes'][$size];
 			}
+			$files = $size_list;
+		} else {
+			$sizes = array( $size => $thumb_data['sizes'][$size] );
+			$files = array( $size );
 		}
-		closedir($dir);
-
+		foreach ( $sizes as $key => $value ) {
+			$file = $thumb_dir . '/' . $value['file'];
+			unlink( $file );
+		}
 		$sizes = array();
-		foreach ( get_intermediate_image_sizes() as $s ) {
+		foreach ( $files as $s ) {
 			$sizes[$s] = array( 'width' => '', 'height' => '', 'crop' => false );
 			if ( isset( $_wp_additional_image_sizes[$s]['width'] ) )
 				$sizes[$s]['width'] = intval( $_wp_additional_image_sizes[$s]['width'] );
@@ -139,6 +189,8 @@ class NinjaThumb {
 				$crop = true;
 
 			$image = wp_get_image_editor( $thumb_path );
+			if ( is_wp_error($image) )
+				return false;
 			$image->resize( $width, $height, $crop );
 			$image->set_quality( 100 );
 			$file_name = $image->generate_filename();

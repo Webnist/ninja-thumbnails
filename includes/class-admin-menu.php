@@ -12,6 +12,7 @@ class NinjaThumbAdmin {
 		$this->plugin_dir_path      = NinjaThumb::plugin_dir_path();
 		$this->plugin_dir_url       = NinjaThumb::plugin_dir_url();
 		$this->ninja_onmitsu        = (int) get_option( 'ninja_onmitsu' );
+		$this->ninja_size           = get_option( 'ninja_size' );
 		$this->ninja_execution_date = get_option( 'ninja_execution_date' );
 
 		add_action( 'admin_menu', array( &$this, 'admin_menu' ) );
@@ -44,12 +45,25 @@ class NinjaThumbAdmin {
 	public function add_general_custom_fields() {
 		global $add_settings_field;
 		add_settings_field( 'ninja_onmitsu', __( 'Onmitsu execution.', NinjaThumb::TEXT_DOMAIN ), array( &$this, 'ninja_check_box' ), self::OPTION_PAGE, 'default', array( 'name' => 'ninja_onmitsu', 'value' => $this->ninja_onmitsu, 'note' => __( 'Enabling', NinjaThumb::TEXT_DOMAIN ) ) );
+		add_settings_field( 'ninja_size', __( 'Onmitsu resize.', NinjaThumb::TEXT_DOMAIN ), array( &$this, 'ninja_check_multi_box' ), self::OPTION_PAGE, 'default', array( 'name' => 'ninja_size', 'value' => $this->ninja_size, 'note' => __( 'Regenerate all sizes', NinjaThumb::TEXT_DOMAIN ) ) );
 		add_settings_field( 'ninja_execution_date', __( 'Execution Date', NinjaThumb::TEXT_DOMAIN ), array( &$this, 'ninja_text_field' ), self::OPTION_PAGE, 'default', array( 'name' => 'ninja_execution_date', 'value' => $this->ninja_execution_date ) );
 	}
 
 	public function ninja_check_box( $args ) {
 		extract( $args );
-		$output = '<label><input type="checkbox" name="' . $args['name'] .'" id="' . $args['name'] .'" value="1"' . checked( 1, $args['value'], false ). ' /> ' . esc_html__( $args['note'], NinjaThumb::TEXT_DOMAIN ) . '</label>' ."\n";
+		$output = '<label><input type="checkbox" name="' . $args['name'] . '" id="' . $args['name'] . '" value="1"' . checked( 1, $args['value'], false ). ' /> ' . esc_html__( $args['note'], NinjaThumb::TEXT_DOMAIN ) . '</label>' ."\n";
+		echo $output;
+	}
+
+	public function ninja_check_multi_box( $args ) {
+		extract( $args );
+		$sizes = get_intermediate_image_sizes();
+		$output = '';
+		foreach ( $sizes as $size ) {
+			$output .= '<label><input type="checkbox" name="' . $args['name'] .'[]" id="' . $args['name'] . '[]" value="' . $size . '"';
+			$output .= in_array( $size, $args['value'] ) ? ' checked' : '';
+			$output .= ' /> ' . __( $size ) . '</label>' ."\n";
+		}
 		echo $output;
 	}
 
@@ -62,6 +76,7 @@ class NinjaThumbAdmin {
 
 	public function add_custom_whitelist_options_fields() {
 		register_setting( self::OPTION_PAGE, 'ninja_onmitsu', 'intval' );
+		register_setting( self::OPTION_PAGE, 'ninja_size' );
 		register_setting( self::OPTION_PAGE, 'ninja_execution_date', array( &$this, 'add_time' ) );
 		register_setting( self::OPTION_PAGE, 'ninja_thumbnails_modified', array( &$this, 'add_ninja_thumbnails_modified' ) );
 	}
